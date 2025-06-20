@@ -6,5 +6,6 @@ Welcome to my **Generative AI (GenAI)** learning repository! This collection of 
 
 This repository will be continuously updated as I explore more concepts. Current topics include:
 
-- Fine-tuning Transformers like Text Generation with Language Models (google/pegasus model)
-- Vector Databases (Chroma)
+- Fine-tuning Transformers like Text Generation with Language Models (google/pegasus model).
+- Vector Databases (Chroma),
+- Langchain prompt templates using gemini api.
