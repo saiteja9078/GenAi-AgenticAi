@@ -1,0 +1,6 @@
+google-generativeai
+langchain
+streamlit
+langchain_community
+langchain-google-genai
+google-generativeai
