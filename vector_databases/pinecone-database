@@ -1,0 +1,489 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": []
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "code",
+      "execution_count": 4,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "3Ob6Z6UpKA6o",
+        "outputId": "9ad271d6-6fe2-4b10-ddc2-39969310e90e"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Collecting pinecone\n",
+            "  Using cached pinecone-7.2.0-py3-none-any.whl.metadata (9.5 kB)\n",
+            "Requirement already satisfied: certifi>=2019.11.17 in /usr/local/lib/python3.11/dist-packages (from pinecone) (2025.6.15)\n",
+            "Requirement already satisfied: pinecone-plugin-assistant<2.0.0,>=1.6.0 in /usr/local/lib/python3.11/dist-packages (from pinecone) (1.7.0)\n",
+            "Requirement already satisfied: pinecone-plugin-interface<0.0.8,>=0.0.7 in /usr/local/lib/python3.11/dist-packages (from pinecone) (0.0.7)\n",
+            "Requirement already satisfied: python-dateutil>=2.5.3 in /usr/local/lib/python3.11/dist-packages (from pinecone) (2.9.0.post0)\n",
+            "Requirement already satisfied: typing-extensions>=3.7.4 in /usr/local/lib/python3.11/dist-packages (from pinecone) (4.14.0)\n",
+            "Requirement already satisfied: urllib3>=1.26.0 in /usr/local/lib/python3.11/dist-packages (from pinecone) (2.4.0)\n",
+            "Requirement already satisfied: packaging<25.0,>=24.2 in /usr/local/lib/python3.11/dist-packages (from pinecone-plugin-assistant<2.0.0,>=1.6.0->pinecone) (24.2)\n",
+            "Requirement already satisfied: requests<3.0.0,>=2.32.3 in /usr/local/lib/python3.11/dist-packages (from pinecone-plugin-assistant<2.0.0,>=1.6.0->pinecone) (2.32.3)\n",
+            "Requirement already satisfied: six>=1.5 in /usr/local/lib/python3.11/dist-packages (from python-dateutil>=2.5.3->pinecone) (1.17.0)\n",
+            "Requirement already satisfied: charset-normalizer<4,>=2 in /usr/local/lib/python3.11/dist-packages (from requests<3.0.0,>=2.32.3->pinecone-plugin-assistant<2.0.0,>=1.6.0->pinecone) (3.4.2)\n",
+            "Requirement already satisfied: idna<4,>=2.5 in /usr/local/lib/python3.11/dist-packages (from requests<3.0.0,>=2.32.3->pinecone-plugin-assistant<2.0.0,>=1.6.0->pinecone) (3.10)\n",
+            "Using cached pinecone-7.2.0-py3-none-any.whl (524 kB)\n",
+            "Installing collected packages: pinecone\n",
+            "Successfully installed pinecone-7.2.0\n",
+            "Requirement already satisfied: google-generativeai in /usr/local/lib/python3.11/dist-packages (0.8.5)\n",
+            "Requirement already satisfied: google-ai-generativelanguage==0.6.15 in /usr/local/lib/python3.11/dist-packages (from google-generativeai) (0.6.15)\n",
+            "Requirement already satisfied: google-api-core in /usr/local/lib/python3.11/dist-packages (from google-generativeai) (2.25.1)\n",
+            "Requirement already satisfied: google-api-python-client in /usr/local/lib/python3.11/dist-packages (from google-generativeai) (2.172.0)\n",
+            "Requirement already satisfied: google-auth>=2.15.0 in /usr/local/lib/python3.11/dist-packages (from google-generativeai) (2.38.0)\n",
+            "Requirement already satisfied: protobuf in /usr/local/lib/python3.11/dist-packages (from google-generativeai) (5.29.5)\n",
+            "Requirement already satisfied: pydantic in /usr/local/lib/python3.11/dist-packages (from google-generativeai) (2.11.7)\n",
+            "Requirement already satisfied: tqdm in /usr/local/lib/python3.11/dist-packages (from google-generativeai) (4.67.1)\n",
+            "Requirement already satisfied: typing-extensions in /usr/local/lib/python3.11/dist-packages (from google-generativeai) (4.14.0)\n",
+            "Requirement already satisfied: proto-plus<2.0.0dev,>=1.22.3 in /usr/local/lib/python3.11/dist-packages (from google-ai-generativelanguage==0.6.15->google-generativeai) (1.26.1)\n",
+            "Requirement already satisfied: googleapis-common-protos<2.0.0,>=1.56.2 in /usr/local/lib/python3.11/dist-packages (from google-api-core->google-generativeai) (1.70.0)\n",
+            "Requirement already satisfied: requests<3.0.0,>=2.18.0 in /usr/local/lib/python3.11/dist-packages (from google-api-core->google-generativeai) (2.32.3)\n",
+            "Requirement already satisfied: cachetools<6.0,>=2.0.0 in /usr/local/lib/python3.11/dist-packages (from google-auth>=2.15.0->google-generativeai) (5.5.2)\n",
+            "Requirement already satisfied: pyasn1-modules>=0.2.1 in /usr/local/lib/python3.11/dist-packages (from google-auth>=2.15.0->google-generativeai) (0.4.2)\n",
+            "Requirement already satisfied: rsa<5,>=3.1.4 in /usr/local/lib/python3.11/dist-packages (from google-auth>=2.15.0->google-generativeai) (4.9.1)\n",
+            "Requirement already satisfied: httplib2<1.0.0,>=0.19.0 in /usr/local/lib/python3.11/dist-packages (from google-api-python-client->google-generativeai) (0.22.0)\n",
+            "Requirement already satisfied: google-auth-httplib2<1.0.0,>=0.2.0 in /usr/local/lib/python3.11/dist-packages (from google-api-python-client->google-generativeai) (0.2.0)\n",
+            "Requirement already satisfied: uritemplate<5,>=3.0.1 in /usr/local/lib/python3.11/dist-packages (from google-api-python-client->google-generativeai) (4.2.0)\n",
+            "Requirement already satisfied: annotated-types>=0.6.0 in /usr/local/lib/python3.11/dist-packages (from pydantic->google-generativeai) (0.7.0)\n",
+            "Requirement already satisfied: pydantic-core==2.33.2 in /usr/local/lib/python3.11/dist-packages (from pydantic->google-generativeai) (2.33.2)\n",
+            "Requirement already satisfied: typing-inspection>=0.4.0 in /usr/local/lib/python3.11/dist-packages (from pydantic->google-generativeai) (0.4.1)\n",
+            "Requirement already satisfied: grpcio<2.0.0,>=1.33.2 in /usr/local/lib/python3.11/dist-packages (from google-api-core[grpc]!=2.0.*,!=2.1.*,!=2.10.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*,!=2.8.*,!=2.9.*,<3.0.0dev,>=1.34.1->google-ai-generativelanguage==0.6.15->google-generativeai) (1.73.0)\n",
+            "Requirement already satisfied: grpcio-status<2.0.0,>=1.33.2 in /usr/local/lib/python3.11/dist-packages (from google-api-core[grpc]!=2.0.*,!=2.1.*,!=2.10.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*,!=2.8.*,!=2.9.*,<3.0.0dev,>=1.34.1->google-ai-generativelanguage==0.6.15->google-generativeai) (1.71.0)\n",
+            "Requirement already satisfied: pyparsing!=3.0.0,!=3.0.1,!=3.0.2,!=3.0.3,<4,>=2.4.2 in /usr/local/lib/python3.11/dist-packages (from httplib2<1.0.0,>=0.19.0->google-api-python-client->google-generativeai) (3.2.3)\n",
+            "Requirement already satisfied: pyasn1<0.7.0,>=0.6.1 in /usr/local/lib/python3.11/dist-packages (from pyasn1-modules>=0.2.1->google-auth>=2.15.0->google-generativeai) (0.6.1)\n",
+            "Requirement already satisfied: charset-normalizer<4,>=2 in /usr/local/lib/python3.11/dist-packages (from requests<3.0.0,>=2.18.0->google-api-core->google-generativeai) (3.4.2)\n",
+            "Requirement already satisfied: idna<4,>=2.5 in /usr/local/lib/python3.11/dist-packages (from requests<3.0.0,>=2.18.0->google-api-core->google-generativeai) (3.10)\n",
+            "Requirement already satisfied: urllib3<3,>=1.21.1 in /usr/local/lib/python3.11/dist-packages (from requests<3.0.0,>=2.18.0->google-api-core->google-generativeai) (2.4.0)\n",
+            "Requirement already satisfied: certifi>=2017.4.17 in /usr/local/lib/python3.11/dist-packages (from requests<3.0.0,>=2.18.0->google-api-core->google-generativeai) (2025.6.15)\n",
+            "Requirement already satisfied: langchain in /usr/local/lib/python3.11/dist-packages (0.3.26)\n",
+            "Requirement already satisfied: langchain-core<1.0.0,>=0.3.66 in /usr/local/lib/python3.11/dist-packages (from langchain) (0.3.66)\n",
+            "Requirement already satisfied: langchain-text-splitters<1.0.0,>=0.3.8 in /usr/local/lib/python3.11/dist-packages (from langchain) (0.3.8)\n",
+            "Requirement already satisfied: langsmith>=0.1.17 in /usr/local/lib/python3.11/dist-packages (from langchain) (0.3.45)\n",
+            "Requirement already satisfied: pydantic<3.0.0,>=2.7.4 in /usr/local/lib/python3.11/dist-packages (from langchain) (2.11.7)\n",
+            "Requirement already satisfied: SQLAlchemy<3,>=1.4 in /usr/local/lib/python3.11/dist-packages (from langchain) (2.0.41)\n",
+            "Requirement already satisfied: requests<3,>=2 in /usr/local/lib/python3.11/dist-packages (from langchain) (2.32.3)\n",
+            "Requirement already satisfied: PyYAML>=5.3 in /usr/local/lib/python3.11/dist-packages (from langchain) (6.0.2)\n",
+            "Requirement already satisfied: tenacity!=8.4.0,<10.0.0,>=8.1.0 in /usr/local/lib/python3.11/dist-packages (from langchain-core<1.0.0,>=0.3.66->langchain) (9.1.2)\n",
+            "Requirement already satisfied: jsonpatch<2.0,>=1.33 in /usr/local/lib/python3.11/dist-packages (from langchain-core<1.0.0,>=0.3.66->langchain) (1.33)\n",
+            "Requirement already satisfied: packaging<25,>=23.2 in /usr/local/lib/python3.11/dist-packages (from langchain-core<1.0.0,>=0.3.66->langchain) (24.2)\n",
+            "Requirement already satisfied: typing-extensions>=4.7 in /usr/local/lib/python3.11/dist-packages (from langchain-core<1.0.0,>=0.3.66->langchain) (4.14.0)\n",
+            "Requirement already satisfied: httpx<1,>=0.23.0 in /usr/local/lib/python3.11/dist-packages (from langsmith>=0.1.17->langchain) (0.28.1)\n",
+            "Requirement already satisfied: orjson<4.0.0,>=3.9.14 in /usr/local/lib/python3.11/dist-packages (from langsmith>=0.1.17->langchain) (3.10.18)\n",
+            "Requirement already satisfied: requests-toolbelt<2.0.0,>=1.0.0 in /usr/local/lib/python3.11/dist-packages (from langsmith>=0.1.17->langchain) (1.0.0)\n",
+            "Requirement already satisfied: zstandard<0.24.0,>=0.23.0 in /usr/local/lib/python3.11/dist-packages (from langsmith>=0.1.17->langchain) (0.23.0)\n",
+            "Requirement already satisfied: annotated-types>=0.6.0 in /usr/local/lib/python3.11/dist-packages (from pydantic<3.0.0,>=2.7.4->langchain) (0.7.0)\n",
+            "Requirement already satisfied: pydantic-core==2.33.2 in /usr/local/lib/python3.11/dist-packages (from pydantic<3.0.0,>=2.7.4->langchain) (2.33.2)\n",
+            "Requirement already satisfied: typing-inspection>=0.4.0 in /usr/local/lib/python3.11/dist-packages (from pydantic<3.0.0,>=2.7.4->langchain) (0.4.1)\n",
+            "Requirement already satisfied: charset-normalizer<4,>=2 in /usr/local/lib/python3.11/dist-packages (from requests<3,>=2->langchain) (3.4.2)\n",
+            "Requirement already satisfied: idna<4,>=2.5 in /usr/local/lib/python3.11/dist-packages (from requests<3,>=2->langchain) (3.10)\n",
+            "Requirement already satisfied: urllib3<3,>=1.21.1 in /usr/local/lib/python3.11/dist-packages (from requests<3,>=2->langchain) (2.4.0)\n",
+            "Requirement already satisfied: certifi>=2017.4.17 in /usr/local/lib/python3.11/dist-packages (from requests<3,>=2->langchain) (2025.6.15)\n",
+            "Requirement already satisfied: greenlet>=1 in /usr/local/lib/python3.11/dist-packages (from SQLAlchemy<3,>=1.4->langchain) (3.2.3)\n",
+            "Requirement already satisfied: anyio in /usr/local/lib/python3.11/dist-packages (from httpx<1,>=0.23.0->langsmith>=0.1.17->langchain) (4.9.0)\n",
+            "Requirement already satisfied: httpcore==1.* in /usr/local/lib/python3.11/dist-packages (from httpx<1,>=0.23.0->langsmith>=0.1.17->langchain) (1.0.9)\n",
+            "Requirement already satisfied: h11>=0.16 in /usr/local/lib/python3.11/dist-packages (from httpcore==1.*->httpx<1,>=0.23.0->langsmith>=0.1.17->langchain) (0.16.0)\n",
+            "Requirement already satisfied: jsonpointer>=1.9 in /usr/local/lib/python3.11/dist-packages (from jsonpatch<2.0,>=1.33->langchain-core<1.0.0,>=0.3.66->langchain) (3.0.0)\n",
+            "Requirement already satisfied: sniffio>=1.1 in /usr/local/lib/python3.11/dist-packages (from anyio->httpx<1,>=0.23.0->langsmith>=0.1.17->langchain) (1.3.1)\n",
+            "Requirement already satisfied: langchain_community in /usr/local/lib/python3.11/dist-packages (0.3.26)\n",
+            "Requirement already satisfied: langchain-core<1.0.0,>=0.3.66 in /usr/local/lib/python3.11/dist-packages (from langchain_community) (0.3.66)\n",
+            "Requirement already satisfied: langchain<1.0.0,>=0.3.26 in /usr/local/lib/python3.11/dist-packages (from langchain_community) (0.3.26)\n",
+            "Requirement already satisfied: SQLAlchemy<3,>=1.4 in /usr/local/lib/python3.11/dist-packages (from langchain_community) (2.0.41)\n",
+            "Requirement already satisfied: requests<3,>=2 in /usr/local/lib/python3.11/dist-packages (from langchain_community) (2.32.3)\n",
+            "Requirement already satisfied: PyYAML>=5.3 in /usr/local/lib/python3.11/dist-packages (from langchain_community) (6.0.2)\n",
+            "Requirement already satisfied: aiohttp<4.0.0,>=3.8.3 in /usr/local/lib/python3.11/dist-packages (from langchain_community) (3.11.15)\n",
+            "Requirement already satisfied: tenacity!=8.4.0,<10,>=8.1.0 in /usr/local/lib/python3.11/dist-packages (from langchain_community) (9.1.2)\n",
+            "Requirement already satisfied: dataclasses-json<0.7,>=0.5.7 in /usr/local/lib/python3.11/dist-packages (from langchain_community) (0.6.7)\n",
+            "Requirement already satisfied: pydantic-settings<3.0.0,>=2.4.0 in /usr/local/lib/python3.11/dist-packages (from langchain_community) (2.9.1)\n",
+            "Requirement already satisfied: langsmith>=0.1.125 in /usr/local/lib/python3.11/dist-packages (from langchain_community) (0.3.45)\n",
+            "Requirement already satisfied: httpx-sse<1.0.0,>=0.4.0 in /usr/local/lib/python3.11/dist-packages (from langchain_community) (0.4.0)\n",
+            "Requirement already satisfied: numpy>=1.26.2 in /usr/local/lib/python3.11/dist-packages (from langchain_community) (2.0.2)\n",
+            "Requirement already satisfied: aiohappyeyeballs>=2.3.0 in /usr/local/lib/python3.11/dist-packages (from aiohttp<4.0.0,>=3.8.3->langchain_community) (2.6.1)\n",
+            "Requirement already satisfied: aiosignal>=1.1.2 in /usr/local/lib/python3.11/dist-packages (from aiohttp<4.0.0,>=3.8.3->langchain_community) (1.3.2)\n",
+            "Requirement already satisfied: attrs>=17.3.0 in /usr/local/lib/python3.11/dist-packages (from aiohttp<4.0.0,>=3.8.3->langchain_community) (25.3.0)\n",
+            "Requirement already satisfied: frozenlist>=1.1.1 in /usr/local/lib/python3.11/dist-packages (from aiohttp<4.0.0,>=3.8.3->langchain_community) (1.7.0)\n",
+            "Requirement already satisfied: multidict<7.0,>=4.5 in /usr/local/lib/python3.11/dist-packages (from aiohttp<4.0.0,>=3.8.3->langchain_community) (6.4.4)\n",
+            "Requirement already satisfied: propcache>=0.2.0 in /usr/local/lib/python3.11/dist-packages (from aiohttp<4.0.0,>=3.8.3->langchain_community) (0.3.2)\n",
+            "Requirement already satisfied: yarl<2.0,>=1.17.0 in /usr/local/lib/python3.11/dist-packages (from aiohttp<4.0.0,>=3.8.3->langchain_community) (1.20.1)\n",
+            "Requirement already satisfied: marshmallow<4.0.0,>=3.18.0 in /usr/local/lib/python3.11/dist-packages (from dataclasses-json<0.7,>=0.5.7->langchain_community) (3.26.1)\n",
+            "Requirement already satisfied: typing-inspect<1,>=0.4.0 in /usr/local/lib/python3.11/dist-packages (from dataclasses-json<0.7,>=0.5.7->langchain_community) (0.9.0)\n",
+            "Requirement already satisfied: langchain-text-splitters<1.0.0,>=0.3.8 in /usr/local/lib/python3.11/dist-packages (from langchain<1.0.0,>=0.3.26->langchain_community) (0.3.8)\n",
+            "Requirement already satisfied: pydantic<3.0.0,>=2.7.4 in /usr/local/lib/python3.11/dist-packages (from langchain<1.0.0,>=0.3.26->langchain_community) (2.11.7)\n",
+            "Requirement already satisfied: jsonpatch<2.0,>=1.33 in /usr/local/lib/python3.11/dist-packages (from langchain-core<1.0.0,>=0.3.66->langchain_community) (1.33)\n",
+            "Requirement already satisfied: packaging<25,>=23.2 in /usr/local/lib/python3.11/dist-packages (from langchain-core<1.0.0,>=0.3.66->langchain_community) (24.2)\n",
+            "Requirement already satisfied: typing-extensions>=4.7 in /usr/local/lib/python3.11/dist-packages (from langchain-core<1.0.0,>=0.3.66->langchain_community) (4.14.0)\n",
+            "Requirement already satisfied: httpx<1,>=0.23.0 in /usr/local/lib/python3.11/dist-packages (from langsmith>=0.1.125->langchain_community) (0.28.1)\n",
+            "Requirement already satisfied: orjson<4.0.0,>=3.9.14 in /usr/local/lib/python3.11/dist-packages (from langsmith>=0.1.125->langchain_community) (3.10.18)\n",
+            "Requirement already satisfied: requests-toolbelt<2.0.0,>=1.0.0 in /usr/local/lib/python3.11/dist-packages (from langsmith>=0.1.125->langchain_community) (1.0.0)\n",
+            "Requirement already satisfied: zstandard<0.24.0,>=0.23.0 in /usr/local/lib/python3.11/dist-packages (from langsmith>=0.1.125->langchain_community) (0.23.0)\n",
+            "Requirement already satisfied: python-dotenv>=0.21.0 in /usr/local/lib/python3.11/dist-packages (from pydantic-settings<3.0.0,>=2.4.0->langchain_community) (1.1.0)\n",
+            "Requirement already satisfied: typing-inspection>=0.4.0 in /usr/local/lib/python3.11/dist-packages (from pydantic-settings<3.0.0,>=2.4.0->langchain_community) (0.4.1)\n",
+            "Requirement already satisfied: charset-normalizer<4,>=2 in /usr/local/lib/python3.11/dist-packages (from requests<3,>=2->langchain_community) (3.4.2)\n",
+            "Requirement already satisfied: idna<4,>=2.5 in /usr/local/lib/python3.11/dist-packages (from requests<3,>=2->langchain_community) (3.10)\n",
+            "Requirement already satisfied: urllib3<3,>=1.21.1 in /usr/local/lib/python3.11/dist-packages (from requests<3,>=2->langchain_community) (2.4.0)\n",
+            "Requirement already satisfied: certifi>=2017.4.17 in /usr/local/lib/python3.11/dist-packages (from requests<3,>=2->langchain_community) (2025.6.15)\n",
+            "Requirement already satisfied: greenlet>=1 in /usr/local/lib/python3.11/dist-packages (from SQLAlchemy<3,>=1.4->langchain_community) (3.2.3)\n",
+            "Requirement already satisfied: anyio in /usr/local/lib/python3.11/dist-packages (from httpx<1,>=0.23.0->langsmith>=0.1.125->langchain_community) (4.9.0)\n",
+            "Requirement already satisfied: httpcore==1.* in /usr/local/lib/python3.11/dist-packages (from httpx<1,>=0.23.0->langsmith>=0.1.125->langchain_community) (1.0.9)\n",
+            "Requirement already satisfied: h11>=0.16 in /usr/local/lib/python3.11/dist-packages (from httpcore==1.*->httpx<1,>=0.23.0->langsmith>=0.1.125->langchain_community) (0.16.0)\n",
+            "Requirement already satisfied: jsonpointer>=1.9 in /usr/local/lib/python3.11/dist-packages (from jsonpatch<2.0,>=1.33->langchain-core<1.0.0,>=0.3.66->langchain_community) (3.0.0)\n",
+            "Requirement already satisfied: annotated-types>=0.6.0 in /usr/local/lib/python3.11/dist-packages (from pydantic<3.0.0,>=2.7.4->langchain<1.0.0,>=0.3.26->langchain_community) (0.7.0)\n",
+            "Requirement already satisfied: pydantic-core==2.33.2 in /usr/local/lib/python3.11/dist-packages (from pydantic<3.0.0,>=2.7.4->langchain<1.0.0,>=0.3.26->langchain_community) (2.33.2)\n",
+            "Requirement already satisfied: mypy-extensions>=0.3.0 in /usr/local/lib/python3.11/dist-packages (from typing-inspect<1,>=0.4.0->dataclasses-json<0.7,>=0.5.7->langchain_community) (1.1.0)\n",
+            "Requirement already satisfied: sniffio>=1.1 in /usr/local/lib/python3.11/dist-packages (from anyio->httpx<1,>=0.23.0->langsmith>=0.1.125->langchain_community) (1.3.1)\n",
+            "Requirement already satisfied: langchain-google-genai in /usr/local/lib/python3.11/dist-packages (2.0.10)\n",
+            "Requirement already satisfied: filetype<2.0.0,>=1.2.0 in /usr/local/lib/python3.11/dist-packages (from langchain-google-genai) (1.2.0)\n",
+            "Requirement already satisfied: google-generativeai<0.9.0,>=0.8.0 in /usr/local/lib/python3.11/dist-packages (from langchain-google-genai) (0.8.5)\n",
+            "Requirement already satisfied: langchain-core<0.4.0,>=0.3.37 in /usr/local/lib/python3.11/dist-packages (from langchain-google-genai) (0.3.66)\n",
+            "Requirement already satisfied: pydantic<3,>=2 in /usr/local/lib/python3.11/dist-packages (from langchain-google-genai) (2.11.7)\n",
+            "Requirement already satisfied: google-ai-generativelanguage==0.6.15 in /usr/local/lib/python3.11/dist-packages (from google-generativeai<0.9.0,>=0.8.0->langchain-google-genai) (0.6.15)\n",
+            "Requirement already satisfied: google-api-core in /usr/local/lib/python3.11/dist-packages (from google-generativeai<0.9.0,>=0.8.0->langchain-google-genai) (2.25.1)\n",
+            "Requirement already satisfied: google-api-python-client in /usr/local/lib/python3.11/dist-packages (from google-generativeai<0.9.0,>=0.8.0->langchain-google-genai) (2.172.0)\n",
+            "Requirement already satisfied: google-auth>=2.15.0 in /usr/local/lib/python3.11/dist-packages (from google-generativeai<0.9.0,>=0.8.0->langchain-google-genai) (2.38.0)\n",
+            "Requirement already satisfied: protobuf in /usr/local/lib/python3.11/dist-packages (from google-generativeai<0.9.0,>=0.8.0->langchain-google-genai) (5.29.5)\n",
+            "Requirement already satisfied: tqdm in /usr/local/lib/python3.11/dist-packages (from google-generativeai<0.9.0,>=0.8.0->langchain-google-genai) (4.67.1)\n",
+            "Requirement already satisfied: typing-extensions in /usr/local/lib/python3.11/dist-packages (from google-generativeai<0.9.0,>=0.8.0->langchain-google-genai) (4.14.0)\n",
+            "Requirement already satisfied: proto-plus<2.0.0dev,>=1.22.3 in /usr/local/lib/python3.11/dist-packages (from google-ai-generativelanguage==0.6.15->google-generativeai<0.9.0,>=0.8.0->langchain-google-genai) (1.26.1)\n",
+            "Requirement already satisfied: langsmith>=0.3.45 in /usr/local/lib/python3.11/dist-packages (from langchain-core<0.4.0,>=0.3.37->langchain-google-genai) (0.3.45)\n",
+            "Requirement already satisfied: tenacity!=8.4.0,<10.0.0,>=8.1.0 in /usr/local/lib/python3.11/dist-packages (from langchain-core<0.4.0,>=0.3.37->langchain-google-genai) (9.1.2)\n",
+            "Requirement already satisfied: jsonpatch<2.0,>=1.33 in /usr/local/lib/python3.11/dist-packages (from langchain-core<0.4.0,>=0.3.37->langchain-google-genai) (1.33)\n",
+            "Requirement already satisfied: PyYAML>=5.3 in /usr/local/lib/python3.11/dist-packages (from langchain-core<0.4.0,>=0.3.37->langchain-google-genai) (6.0.2)\n",
+            "Requirement already satisfied: packaging<25,>=23.2 in /usr/local/lib/python3.11/dist-packages (from langchain-core<0.4.0,>=0.3.37->langchain-google-genai) (24.2)\n",
+            "Requirement already satisfied: annotated-types>=0.6.0 in /usr/local/lib/python3.11/dist-packages (from pydantic<3,>=2->langchain-google-genai) (0.7.0)\n",
+            "Requirement already satisfied: pydantic-core==2.33.2 in /usr/local/lib/python3.11/dist-packages (from pydantic<3,>=2->langchain-google-genai) (2.33.2)\n",
+            "Requirement already satisfied: typing-inspection>=0.4.0 in /usr/local/lib/python3.11/dist-packages (from pydantic<3,>=2->langchain-google-genai) (0.4.1)\n",
+            "Requirement already satisfied: googleapis-common-protos<2.0.0,>=1.56.2 in /usr/local/lib/python3.11/dist-packages (from google-api-core->google-generativeai<0.9.0,>=0.8.0->langchain-google-genai) (1.70.0)\n",
+            "Requirement already satisfied: requests<3.0.0,>=2.18.0 in /usr/local/lib/python3.11/dist-packages (from google-api-core->google-generativeai<0.9.0,>=0.8.0->langchain-google-genai) (2.32.3)\n",
+            "Requirement already satisfied: cachetools<6.0,>=2.0.0 in /usr/local/lib/python3.11/dist-packages (from google-auth>=2.15.0->google-generativeai<0.9.0,>=0.8.0->langchain-google-genai) (5.5.2)\n",
+            "Requirement already satisfied: pyasn1-modules>=0.2.1 in /usr/local/lib/python3.11/dist-packages (from google-auth>=2.15.0->google-generativeai<0.9.0,>=0.8.0->langchain-google-genai) (0.4.2)\n",
+            "Requirement already satisfied: rsa<5,>=3.1.4 in /usr/local/lib/python3.11/dist-packages (from google-auth>=2.15.0->google-generativeai<0.9.0,>=0.8.0->langchain-google-genai) (4.9.1)\n",
+            "Requirement already satisfied: jsonpointer>=1.9 in /usr/local/lib/python3.11/dist-packages (from jsonpatch<2.0,>=1.33->langchain-core<0.4.0,>=0.3.37->langchain-google-genai) (3.0.0)\n",
+            "Requirement already satisfied: httpx<1,>=0.23.0 in /usr/local/lib/python3.11/dist-packages (from langsmith>=0.3.45->langchain-core<0.4.0,>=0.3.37->langchain-google-genai) (0.28.1)\n",
+            "Requirement already satisfied: orjson<4.0.0,>=3.9.14 in /usr/local/lib/python3.11/dist-packages (from langsmith>=0.3.45->langchain-core<0.4.0,>=0.3.37->langchain-google-genai) (3.10.18)\n",
+            "Requirement already satisfied: requests-toolbelt<2.0.0,>=1.0.0 in /usr/local/lib/python3.11/dist-packages (from langsmith>=0.3.45->langchain-core<0.4.0,>=0.3.37->langchain-google-genai) (1.0.0)\n",
+            "Requirement already satisfied: zstandard<0.24.0,>=0.23.0 in /usr/local/lib/python3.11/dist-packages (from langsmith>=0.3.45->langchain-core<0.4.0,>=0.3.37->langchain-google-genai) (0.23.0)\n",
+            "Requirement already satisfied: httplib2<1.0.0,>=0.19.0 in /usr/local/lib/python3.11/dist-packages (from google-api-python-client->google-generativeai<0.9.0,>=0.8.0->langchain-google-genai) (0.22.0)\n",
+            "Requirement already satisfied: google-auth-httplib2<1.0.0,>=0.2.0 in /usr/local/lib/python3.11/dist-packages (from google-api-python-client->google-generativeai<0.9.0,>=0.8.0->langchain-google-genai) (0.2.0)\n",
+            "Requirement already satisfied: uritemplate<5,>=3.0.1 in /usr/local/lib/python3.11/dist-packages (from google-api-python-client->google-generativeai<0.9.0,>=0.8.0->langchain-google-genai) (4.2.0)\n",
+            "Requirement already satisfied: grpcio<2.0.0,>=1.33.2 in /usr/local/lib/python3.11/dist-packages (from google-api-core[grpc]!=2.0.*,!=2.1.*,!=2.10.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*,!=2.8.*,!=2.9.*,<3.0.0dev,>=1.34.1->google-ai-generativelanguage==0.6.15->google-generativeai<0.9.0,>=0.8.0->langchain-google-genai) (1.73.0)\n",
+            "Requirement already satisfied: grpcio-status<2.0.0,>=1.33.2 in /usr/local/lib/python3.11/dist-packages (from google-api-core[grpc]!=2.0.*,!=2.1.*,!=2.10.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*,!=2.8.*,!=2.9.*,<3.0.0dev,>=1.34.1->google-ai-generativelanguage==0.6.15->google-generativeai<0.9.0,>=0.8.0->langchain-google-genai) (1.71.0)\n",
+            "Requirement already satisfied: pyparsing!=3.0.0,!=3.0.1,!=3.0.2,!=3.0.3,<4,>=2.4.2 in /usr/local/lib/python3.11/dist-packages (from httplib2<1.0.0,>=0.19.0->google-api-python-client->google-generativeai<0.9.0,>=0.8.0->langchain-google-genai) (3.2.3)\n",
+            "Requirement already satisfied: anyio in /usr/local/lib/python3.11/dist-packages (from httpx<1,>=0.23.0->langsmith>=0.3.45->langchain-core<0.4.0,>=0.3.37->langchain-google-genai) (4.9.0)\n",
+            "Requirement already satisfied: certifi in /usr/local/lib/python3.11/dist-packages (from httpx<1,>=0.23.0->langsmith>=0.3.45->langchain-core<0.4.0,>=0.3.37->langchain-google-genai) (2025.6.15)\n",
+            "Requirement already satisfied: httpcore==1.* in /usr/local/lib/python3.11/dist-packages (from httpx<1,>=0.23.0->langsmith>=0.3.45->langchain-core<0.4.0,>=0.3.37->langchain-google-genai) (1.0.9)\n",
+            "Requirement already satisfied: idna in /usr/local/lib/python3.11/dist-packages (from httpx<1,>=0.23.0->langsmith>=0.3.45->langchain-core<0.4.0,>=0.3.37->langchain-google-genai) (3.10)\n",
+            "Requirement already satisfied: h11>=0.16 in /usr/local/lib/python3.11/dist-packages (from httpcore==1.*->httpx<1,>=0.23.0->langsmith>=0.3.45->langchain-core<0.4.0,>=0.3.37->langchain-google-genai) (0.16.0)\n",
+            "Requirement already satisfied: pyasn1<0.7.0,>=0.6.1 in /usr/local/lib/python3.11/dist-packages (from pyasn1-modules>=0.2.1->google-auth>=2.15.0->google-generativeai<0.9.0,>=0.8.0->langchain-google-genai) (0.6.1)\n",
+            "Requirement already satisfied: charset-normalizer<4,>=2 in /usr/local/lib/python3.11/dist-packages (from requests<3.0.0,>=2.18.0->google-api-core->google-generativeai<0.9.0,>=0.8.0->langchain-google-genai) (3.4.2)\n",
+            "Requirement already satisfied: urllib3<3,>=1.21.1 in /usr/local/lib/python3.11/dist-packages (from requests<3.0.0,>=2.18.0->google-api-core->google-generativeai<0.9.0,>=0.8.0->langchain-google-genai) (2.4.0)\n",
+            "Requirement already satisfied: sniffio>=1.1 in /usr/local/lib/python3.11/dist-packages (from anyio->httpx<1,>=0.23.0->langsmith>=0.3.45->langchain-core<0.4.0,>=0.3.37->langchain-google-genai) (1.3.1)\n",
+            "Requirement already satisfied: google-generativeai in /usr/local/lib/python3.11/dist-packages (0.8.5)\n",
+            "Requirement already satisfied: google-ai-generativelanguage==0.6.15 in /usr/local/lib/python3.11/dist-packages (from google-generativeai) (0.6.15)\n",
+            "Requirement already satisfied: google-api-core in /usr/local/lib/python3.11/dist-packages (from google-generativeai) (2.25.1)\n",
+            "Requirement already satisfied: google-api-python-client in /usr/local/lib/python3.11/dist-packages (from google-generativeai) (2.172.0)\n",
+            "Requirement already satisfied: google-auth>=2.15.0 in /usr/local/lib/python3.11/dist-packages (from google-generativeai) (2.38.0)\n",
+            "Requirement already satisfied: protobuf in /usr/local/lib/python3.11/dist-packages (from google-generativeai) (5.29.5)\n",
+            "Requirement already satisfied: pydantic in /usr/local/lib/python3.11/dist-packages (from google-generativeai) (2.11.7)\n",
+            "Requirement already satisfied: tqdm in /usr/local/lib/python3.11/dist-packages (from google-generativeai) (4.67.1)\n",
+            "Requirement already satisfied: typing-extensions in /usr/local/lib/python3.11/dist-packages (from google-generativeai) (4.14.0)\n",
+            "Requirement already satisfied: proto-plus<2.0.0dev,>=1.22.3 in /usr/local/lib/python3.11/dist-packages (from google-ai-generativelanguage==0.6.15->google-generativeai) (1.26.1)\n",
+            "Requirement already satisfied: googleapis-common-protos<2.0.0,>=1.56.2 in /usr/local/lib/python3.11/dist-packages (from google-api-core->google-generativeai) (1.70.0)\n",
+            "Requirement already satisfied: requests<3.0.0,>=2.18.0 in /usr/local/lib/python3.11/dist-packages (from google-api-core->google-generativeai) (2.32.3)\n",
+            "Requirement already satisfied: cachetools<6.0,>=2.0.0 in /usr/local/lib/python3.11/dist-packages (from google-auth>=2.15.0->google-generativeai) (5.5.2)\n",
+            "Requirement already satisfied: pyasn1-modules>=0.2.1 in /usr/local/lib/python3.11/dist-packages (from google-auth>=2.15.0->google-generativeai) (0.4.2)\n",
+            "Requirement already satisfied: rsa<5,>=3.1.4 in /usr/local/lib/python3.11/dist-packages (from google-auth>=2.15.0->google-generativeai) (4.9.1)\n",
+            "Requirement already satisfied: httplib2<1.0.0,>=0.19.0 in /usr/local/lib/python3.11/dist-packages (from google-api-python-client->google-generativeai) (0.22.0)\n",
+            "Requirement already satisfied: google-auth-httplib2<1.0.0,>=0.2.0 in /usr/local/lib/python3.11/dist-packages (from google-api-python-client->google-generativeai) (0.2.0)\n",
+            "Requirement already satisfied: uritemplate<5,>=3.0.1 in /usr/local/lib/python3.11/dist-packages (from google-api-python-client->google-generativeai) (4.2.0)\n",
+            "Requirement already satisfied: annotated-types>=0.6.0 in /usr/local/lib/python3.11/dist-packages (from pydantic->google-generativeai) (0.7.0)\n",
+            "Requirement already satisfied: pydantic-core==2.33.2 in /usr/local/lib/python3.11/dist-packages (from pydantic->google-generativeai) (2.33.2)\n",
+            "Requirement already satisfied: typing-inspection>=0.4.0 in /usr/local/lib/python3.11/dist-packages (from pydantic->google-generativeai) (0.4.1)\n",
+            "Requirement already satisfied: grpcio<2.0.0,>=1.33.2 in /usr/local/lib/python3.11/dist-packages (from google-api-core[grpc]!=2.0.*,!=2.1.*,!=2.10.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*,!=2.8.*,!=2.9.*,<3.0.0dev,>=1.34.1->google-ai-generativelanguage==0.6.15->google-generativeai) (1.73.0)\n",
+            "Requirement already satisfied: grpcio-status<2.0.0,>=1.33.2 in /usr/local/lib/python3.11/dist-packages (from google-api-core[grpc]!=2.0.*,!=2.1.*,!=2.10.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*,!=2.8.*,!=2.9.*,<3.0.0dev,>=1.34.1->google-ai-generativelanguage==0.6.15->google-generativeai) (1.71.0)\n",
+            "Requirement already satisfied: pyparsing!=3.0.0,!=3.0.1,!=3.0.2,!=3.0.3,<4,>=2.4.2 in /usr/local/lib/python3.11/dist-packages (from httplib2<1.0.0,>=0.19.0->google-api-python-client->google-generativeai) (3.2.3)\n",
+            "Requirement already satisfied: pyasn1<0.7.0,>=0.6.1 in /usr/local/lib/python3.11/dist-packages (from pyasn1-modules>=0.2.1->google-auth>=2.15.0->google-generativeai) (0.6.1)\n",
+            "Requirement already satisfied: charset-normalizer<4,>=2 in /usr/local/lib/python3.11/dist-packages (from requests<3.0.0,>=2.18.0->google-api-core->google-generativeai) (3.4.2)\n",
+            "Requirement already satisfied: idna<4,>=2.5 in /usr/local/lib/python3.11/dist-packages (from requests<3.0.0,>=2.18.0->google-api-core->google-generativeai) (3.10)\n",
+            "Requirement already satisfied: urllib3<3,>=1.21.1 in /usr/local/lib/python3.11/dist-packages (from requests<3.0.0,>=2.18.0->google-api-core->google-generativeai) (2.4.0)\n",
+            "Requirement already satisfied: certifi>=2017.4.17 in /usr/local/lib/python3.11/dist-packages (from requests<3.0.0,>=2.18.0->google-api-core->google-generativeai) (2025.6.15)\n",
+            "Requirement already satisfied: PyPDF2 in /usr/local/lib/python3.11/dist-packages (3.0.1)\n",
+            "Requirement already satisfied: google-generativeai in /usr/local/lib/python3.11/dist-packages (0.8.5)\n",
+            "Requirement already satisfied: langchain-google-genai in /usr/local/lib/python3.11/dist-packages (2.0.10)\n",
+            "Collecting langchain-google-genai\n",
+            "  Using cached langchain_google_genai-2.1.5-py3-none-any.whl.metadata (5.2 kB)\n",
+            "Requirement already satisfied: google-ai-generativelanguage==0.6.15 in /usr/local/lib/python3.11/dist-packages (from google-generativeai) (0.6.15)\n",
+            "Requirement already satisfied: google-api-core in /usr/local/lib/python3.11/dist-packages (from google-generativeai) (2.25.1)\n",
+            "Requirement already satisfied: google-api-python-client in /usr/local/lib/python3.11/dist-packages (from google-generativeai) (2.172.0)\n",
+            "Requirement already satisfied: google-auth>=2.15.0 in /usr/local/lib/python3.11/dist-packages (from google-generativeai) (2.38.0)\n",
+            "Requirement already satisfied: protobuf in /usr/local/lib/python3.11/dist-packages (from google-generativeai) (5.29.5)\n",
+            "Requirement already satisfied: pydantic in /usr/local/lib/python3.11/dist-packages (from google-generativeai) (2.11.7)\n",
+            "Requirement already satisfied: tqdm in /usr/local/lib/python3.11/dist-packages (from google-generativeai) (4.67.1)\n",
+            "Requirement already satisfied: typing-extensions in /usr/local/lib/python3.11/dist-packages (from google-generativeai) (4.14.0)\n",
+            "Requirement already satisfied: proto-plus<2.0.0dev,>=1.22.3 in /usr/local/lib/python3.11/dist-packages (from google-ai-generativelanguage==0.6.15->google-generativeai) (1.26.1)\n",
+            "Requirement already satisfied: filetype<2.0.0,>=1.2.0 in /usr/local/lib/python3.11/dist-packages (from langchain-google-genai) (1.2.0)\n",
+            "INFO: pip is looking at multiple versions of langchain-google-genai to determine which version is compatible with other requirements. This could take a while.\n",
+            "  Using cached langchain_google_genai-2.1.4-py3-none-any.whl.metadata (5.2 kB)\n",
+            "  Using cached langchain_google_genai-2.1.3-py3-none-any.whl.metadata (4.7 kB)\n",
+            "  Using cached langchain_google_genai-2.1.2-py3-none-any.whl.metadata (4.7 kB)\n",
+            "  Using cached langchain_google_genai-2.1.1-py3-none-any.whl.metadata (4.7 kB)\n",
+            "  Using cached langchain_google_genai-2.1.0-py3-none-any.whl.metadata (3.6 kB)\n",
+            "  Using cached langchain_google_genai-2.0.11-py3-none-any.whl.metadata (3.6 kB)\n",
+            "Requirement already satisfied: langchain-core<0.4.0,>=0.3.37 in /usr/local/lib/python3.11/dist-packages (from langchain-google-genai) (0.3.66)\n",
+            "Requirement already satisfied: googleapis-common-protos<2.0.0,>=1.56.2 in /usr/local/lib/python3.11/dist-packages (from google-api-core->google-generativeai) (1.70.0)\n",
+            "Requirement already satisfied: requests<3.0.0,>=2.18.0 in /usr/local/lib/python3.11/dist-packages (from google-api-core->google-generativeai) (2.32.3)\n",
+            "Requirement already satisfied: cachetools<6.0,>=2.0.0 in /usr/local/lib/python3.11/dist-packages (from google-auth>=2.15.0->google-generativeai) (5.5.2)\n",
+            "Requirement already satisfied: pyasn1-modules>=0.2.1 in /usr/local/lib/python3.11/dist-packages (from google-auth>=2.15.0->google-generativeai) (0.4.2)\n",
+            "Requirement already satisfied: rsa<5,>=3.1.4 in /usr/local/lib/python3.11/dist-packages (from google-auth>=2.15.0->google-generativeai) (4.9.1)\n",
+            "Requirement already satisfied: langsmith>=0.3.45 in /usr/local/lib/python3.11/dist-packages (from langchain-core<0.4.0,>=0.3.37->langchain-google-genai) (0.3.45)\n",
+            "Requirement already satisfied: tenacity!=8.4.0,<10.0.0,>=8.1.0 in /usr/local/lib/python3.11/dist-packages (from langchain-core<0.4.0,>=0.3.37->langchain-google-genai) (9.1.2)\n",
+            "Requirement already satisfied: jsonpatch<2.0,>=1.33 in /usr/local/lib/python3.11/dist-packages (from langchain-core<0.4.0,>=0.3.37->langchain-google-genai) (1.33)\n",
+            "Requirement already satisfied: PyYAML>=5.3 in /usr/local/lib/python3.11/dist-packages (from langchain-core<0.4.0,>=0.3.37->langchain-google-genai) (6.0.2)\n",
+            "Requirement already satisfied: packaging<25,>=23.2 in /usr/local/lib/python3.11/dist-packages (from langchain-core<0.4.0,>=0.3.37->langchain-google-genai) (24.2)\n",
+            "Requirement already satisfied: annotated-types>=0.6.0 in /usr/local/lib/python3.11/dist-packages (from pydantic->google-generativeai) (0.7.0)\n",
+            "Requirement already satisfied: pydantic-core==2.33.2 in /usr/local/lib/python3.11/dist-packages (from pydantic->google-generativeai) (2.33.2)\n",
+            "Requirement already satisfied: typing-inspection>=0.4.0 in /usr/local/lib/python3.11/dist-packages (from pydantic->google-generativeai) (0.4.1)\n",
+            "Requirement already satisfied: httplib2<1.0.0,>=0.19.0 in /usr/local/lib/python3.11/dist-packages (from google-api-python-client->google-generativeai) (0.22.0)\n",
+            "Requirement already satisfied: google-auth-httplib2<1.0.0,>=0.2.0 in /usr/local/lib/python3.11/dist-packages (from google-api-python-client->google-generativeai) (0.2.0)\n",
+            "Requirement already satisfied: uritemplate<5,>=3.0.1 in /usr/local/lib/python3.11/dist-packages (from google-api-python-client->google-generativeai) (4.2.0)\n",
+            "Requirement already satisfied: grpcio<2.0.0,>=1.33.2 in /usr/local/lib/python3.11/dist-packages (from google-api-core[grpc]!=2.0.*,!=2.1.*,!=2.10.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*,!=2.8.*,!=2.9.*,<3.0.0dev,>=1.34.1->google-ai-generativelanguage==0.6.15->google-generativeai) (1.73.0)\n",
+            "Requirement already satisfied: grpcio-status<2.0.0,>=1.33.2 in /usr/local/lib/python3.11/dist-packages (from google-api-core[grpc]!=2.0.*,!=2.1.*,!=2.10.*,!=2.2.*,!=2.3.*,!=2.4.*,!=2.5.*,!=2.6.*,!=2.7.*,!=2.8.*,!=2.9.*,<3.0.0dev,>=1.34.1->google-ai-generativelanguage==0.6.15->google-generativeai) (1.71.0)\n",
+            "Requirement already satisfied: pyparsing!=3.0.0,!=3.0.1,!=3.0.2,!=3.0.3,<4,>=2.4.2 in /usr/local/lib/python3.11/dist-packages (from httplib2<1.0.0,>=0.19.0->google-api-python-client->google-generativeai) (3.2.3)\n",
+            "Requirement already satisfied: jsonpointer>=1.9 in /usr/local/lib/python3.11/dist-packages (from jsonpatch<2.0,>=1.33->langchain-core<0.4.0,>=0.3.37->langchain-google-genai) (3.0.0)\n",
+            "Requirement already satisfied: httpx<1,>=0.23.0 in /usr/local/lib/python3.11/dist-packages (from langsmith>=0.3.45->langchain-core<0.4.0,>=0.3.37->langchain-google-genai) (0.28.1)\n",
+            "Requirement already satisfied: orjson<4.0.0,>=3.9.14 in /usr/local/lib/python3.11/dist-packages (from langsmith>=0.3.45->langchain-core<0.4.0,>=0.3.37->langchain-google-genai) (3.10.18)\n",
+            "Requirement already satisfied: requests-toolbelt<2.0.0,>=1.0.0 in /usr/local/lib/python3.11/dist-packages (from langsmith>=0.3.45->langchain-core<0.4.0,>=0.3.37->langchain-google-genai) (1.0.0)\n",
+            "Requirement already satisfied: zstandard<0.24.0,>=0.23.0 in /usr/local/lib/python3.11/dist-packages (from langsmith>=0.3.45->langchain-core<0.4.0,>=0.3.37->langchain-google-genai) (0.23.0)\n",
+            "Requirement already satisfied: pyasn1<0.7.0,>=0.6.1 in /usr/local/lib/python3.11/dist-packages (from pyasn1-modules>=0.2.1->google-auth>=2.15.0->google-generativeai) (0.6.1)\n",
+            "Requirement already satisfied: charset-normalizer<4,>=2 in /usr/local/lib/python3.11/dist-packages (from requests<3.0.0,>=2.18.0->google-api-core->google-generativeai) (3.4.2)\n",
+            "Requirement already satisfied: idna<4,>=2.5 in /usr/local/lib/python3.11/dist-packages (from requests<3.0.0,>=2.18.0->google-api-core->google-generativeai) (3.10)\n",
+            "Requirement already satisfied: urllib3<3,>=1.21.1 in /usr/local/lib/python3.11/dist-packages (from requests<3.0.0,>=2.18.0->google-api-core->google-generativeai) (2.4.0)\n",
+            "Requirement already satisfied: certifi>=2017.4.17 in /usr/local/lib/python3.11/dist-packages (from requests<3.0.0,>=2.18.0->google-api-core->google-generativeai) (2025.6.15)\n",
+            "Requirement already satisfied: anyio in /usr/local/lib/python3.11/dist-packages (from httpx<1,>=0.23.0->langsmith>=0.3.45->langchain-core<0.4.0,>=0.3.37->langchain-google-genai) (4.9.0)\n",
+            "Requirement already satisfied: httpcore==1.* in /usr/local/lib/python3.11/dist-packages (from httpx<1,>=0.23.0->langsmith>=0.3.45->langchain-core<0.4.0,>=0.3.37->langchain-google-genai) (1.0.9)\n",
+            "Requirement already satisfied: h11>=0.16 in /usr/local/lib/python3.11/dist-packages (from httpcore==1.*->httpx<1,>=0.23.0->langsmith>=0.3.45->langchain-core<0.4.0,>=0.3.37->langchain-google-genai) (0.16.0)\n",
+            "Requirement already satisfied: sniffio>=1.1 in /usr/local/lib/python3.11/dist-packages (from anyio->httpx<1,>=0.23.0->langsmith>=0.3.45->langchain-core<0.4.0,>=0.3.37->langchain-google-genai) (1.3.1)\n",
+            "Requirement already satisfied: pypdf in /usr/local/lib/python3.11/dist-packages (5.6.0)\n"
+          ]
+        }
+      ],
+      "source": [
+        "!pip install pinecone\n",
+        "!pip install google-generativeai\n",
+        "!pip install langchain\n",
+        "!pip install langchain_community\n",
+        "!pip install langchain-google-genai\n",
+        "!pip install google-generativeai\n",
+        "!pip install PyPDF2\n",
+        "!pip install -U google-generativeai langchain-google-genai\n",
+        "!pip install pypdf"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from langchain_google_genai import ChatGoogleGenerativeAI\n",
+        "import chromadb\n",
+        "from langchain.embeddings import HuggingFaceEmbeddings\n",
+        "embeddings = HuggingFaceEmbeddings(model_name=\"all-MiniLM-L6-v2\")\n",
+        "llm = ChatGoogleGenerativeAI(\n",
+        "    model=\"gemini-1.5-flash\",  # Or \"gemini-pro\"\n",
+        "    google_api_key=\"\"\n",
+        ")"
+      ],
+      "metadata": {
+        "id": "V_PH0CBLKDbI"
+      },
+      "execution_count": 5,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Test the llm"
+      ],
+      "metadata": {
+        "id": "CQmKAdAfNi0J"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "llm.invoke(\"hello there\")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "fFK18-RuL7BN",
+        "outputId": "90251c15-fa8a-4647-93da-72c15756c974"
+      },
+      "execution_count": 6,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "AIMessage(content='Hello there! How can I help you today?', additional_kwargs={}, response_metadata={'prompt_feedback': {'block_reason': 0, 'safety_ratings': []}, 'finish_reason': 'STOP', 'safety_ratings': []}, id='run--8eac491e-0bd9-41bc-a359-adeae6124a90-0', usage_metadata={'input_tokens': 2, 'output_tokens': 11, 'total_tokens': 13, 'input_token_details': {'cache_read': 0}})"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 6
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from langchain.document_loaders import DirectoryLoader,TextLoader,PyPDFDirectoryLoader\n",
+        "loader = PyPDFDirectoryLoader(\"pdfs\")"
+      ],
+      "metadata": {
+        "id": "SeqAEYO8MdVY"
+      },
+      "execution_count": 7,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "docs=loader.load()"
+      ],
+      "metadata": {
+        "id": "zw7UIq30POKy"
+      },
+      "execution_count": 8,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from langchain.text_splitter import RecursiveCharacterTextSplitter\n",
+        "\n",
+        "splitter = RecursiveCharacterTextSplitter(\n",
+        "    chunk_size=1000,\n",
+        "    chunk_overlap=200,\n",
+        "    length_function=len,\n",
+        ")\n",
+        "texts=splitter.split_documents(documents=docs)"
+      ],
+      "metadata": {
+        "id": "SOR0-bxpPha5"
+      },
+      "execution_count": 9,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from pinecone import Pinecone\n",
+        "PINECONE_API_KEY=\"\"\n",
+        "pc = Pinecone(api_key=PINECONE_API_KEY)\n",
+        "index = pc.Index(\"shanksi-ndex\")"
+      ],
+      "metadata": {
+        "id": "iiygbAkuP4EE"
+      },
+      "execution_count": 10,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Prepare the vectors with metadata\n",
+        "final_vecs = [\n",
+        "    {\n",
+        "        \"id\": f\"doc{i+1}\",\n",
+        "        \"values\": vectors[i],\n",
+        "        \"metadata\": {\n",
+        "            \"chunk_text\": texts[i]  # Store the original text with each vector\n",
+        "        }\n",
+        "    }\n",
+        "    for i in range(len(vectors))\n",
+        "]\n",
+        "\n",
+        "# Upsert into the index\n",
+        "index.upsert(vectors=final_vecs)\n"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "kqIQqinRSLsR",
+        "outputId": "b8b943b0-3c89-4c6c-84e7-ccc36172e55e"
+      },
+      "execution_count": 14,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "{'upserted_count': 30}"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 14
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "\n",
+        "query_text = \"work experience of Yunlong Jiao\"\n",
+        "query_vector = embeddings.embed_query(query_text)\n",
+        "\n",
+        "results = index.query(\n",
+        "    vector=query_vector,\n",
+        "    top_k=3,\n",
+        "    include_metadata=True\n",
+        ")\n",
+        "\n",
+        "print(llm.invoke(f\"answer this {query_text} from this resource : {results['matches']}\"))"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "eNTFwTfETFrB",
+        "outputId": "53814e6e-6a47-4242-afb3-bf05ccb9bcd1"
+      },
+      "execution_count": 34,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "content=\"Based on the provided text, Yunlong Jiao's work experience is as follows:\\n\\n* **Machine Learning Scientist (Current, from Nov 2019): Amazon, London, UK**\\n\\n    *  At the Alexa Shopping Science team (from March 2021), his responsibilities include:\\n        * Leading research on bias mitigation technologies in NLP to enhance fairness while preserving user privacy.\\n        * Building and deploying ML solutions to create unified user experiences for Alexa Shopping across different devices.\\n    *  Prior to this specific role within the Alexa Shopping Science team, he worked on building AI assistants at Amazon Alexa that replicate human intelligence.  He was involved in all phases of development, from proof of concept to delivering minimum viable products and scaling up production.\\n\\n\\n  The text also mentions that he has experience supervising master's theses and research internships, as well as coaching and mentoring junior team members.  However, these are presented as skills and not specific work experiences with named companies or projects beyond his current role at Amazon.\" additional_kwargs={} response_metadata={'prompt_feedback': {'block_reason': 0, 'safety_ratings': []}, 'finish_reason': 'STOP', 'safety_ratings': []} id='run--3d314eff-43a9-43e6-9f4b-6fba1d43c16e-0' usage_metadata={'input_tokens': 1144, 'output_tokens': 212, 'total_tokens': 1356, 'input_token_details': {'cache_read': 0}}\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [],
+      "metadata": {
+        "id": "Y004R6zJccfm"
+      },
+      "execution_count": null,
+      "outputs": []
+    }
+  ]
+}
