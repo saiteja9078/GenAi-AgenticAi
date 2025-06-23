@@ -9,3 +9,4 @@ This repository will be continuously updated as I explore more concepts. Current
 - Fine-tuning Transformers like Text Generation with Language Models (google/pegasus model).
 - Vector Databases (Chroma,pinecone).
 - Langchain prompt templates using gemini api.
+- Chat Memory
