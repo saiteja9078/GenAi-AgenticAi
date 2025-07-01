@@ -26,7 +26,7 @@ from serpapi.google_search import GoogleSearch
 
 
 # Configure Gemini API
-genai.configure(api_key="AIzaSyC4pZohbfTJevJ0OtpzAT0N7SerSgAn_44")
+genai.configure(api_key="")
 model = genai.GenerativeModel('gemini-2.0-flash-exp')
 
 prompt_template = ChatPromptTemplate.from_messages([
@@ -40,7 +40,7 @@ prompt_template = ChatPromptTemplate.from_messages([
 
 llm = ChatGoogleGenerativeAI(
     temperature=0.7,
-    api_key="AIzaSyC4pZohbfTJevJ0OtpzAT0N7SerSgAn_44",  # Move to environment variable
+    api_key="",  
     model="gemini-2.5-flash"
 )
 
@@ -54,7 +54,7 @@ def WebSearch(query: str) -> str:
     try:
         results = GoogleSearch({
             "q": query,
-            "api_key": "1b0ffff8e91989bcf6c7d7ea01bc23380053f875eb2babc3e413f4c09af7b9b7",  # Replace with your key
+            "api_key": "",  # Replace with your key
             "engine": "google",
             "num": 5
         }).get_dict()
