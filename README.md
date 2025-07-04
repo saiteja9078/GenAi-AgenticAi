@@ -13,4 +13,4 @@ This repository will be continuously updated as I explore more concepts. Current
 - Re-Act Agents
 
 Langgraoh
-- Reflection Agents
+- Reflection,Reflexion Agents
